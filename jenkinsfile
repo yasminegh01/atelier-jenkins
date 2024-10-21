@@ -1,41 +1,42 @@
 pipeline {
     agent any
+
+    tools {
+        jdk 'JAVA_HOME'
+        maven 'M2_HOME'
+    }
+
     stages {
-        stage('Hello') {
+        stage('GIT') {
             steps {
-                echo 'Hello World'
+                git branch: 'master',
+                    url: 'https://github.com/hwafa/timesheetproject.git'
             }
         }
-        stage('Build') {
+
+        stage('Compile Stage') {
             steps {
-                echo 'Building'
+                sh 'mvn clean compile'
             }
         }
-        stage('Deploy') {
+        stage('Nexus Stage') {
             steps {
-                echo 'Deploying'
-            }
-        }
-        stage('Test') {
-            steps {
-                echo 'Testing'
-            }
-        }
-        stage('Release') {
-            steps {
-                echo 'Releasing'
+                sh 'mvn install'
+                sh 'mvn clean deploy -DskipTests=true'
             }
         }
         stage('SonarQube Analysis') {
             steps {
-                withSonarQubeEnv('sonarscanner') { 
-                    // Replace 'Sonar-scanner' with your actual SonarQube server name in Jenkins
-                    withCredentials([string(credentialsId: 'sonartoken', variable: 'SONAR_TOKEN')]) {
-                        sh '''mvn sonar:sonar \
-                            -Dsonar.projectKey=Devops-CICD \
-                            -Dsonar.login=${SONAR_TOKEN}'''
+                
+                     withSonarQubeEnv('sonarscanner') { // Replace 'SonarQubeServer' with your actual SonarQube server name in Jenkins
+                        withCredentials([string(credentialsId: 'sonartoken', variable: 'SONAR_TOKEN')]) {
+                            sh '''mvn sonar:sonar \
+                                -Dsonar.projectKey=Devops-CICD \
+                                -Dsonar.login=${SONAR_TOKEN}'''
+                        
                     }
                 }
+               
             }
         }
     }
