@@ -25,21 +25,18 @@ pipeline {
             steps {
                 echo 'Releasing'
             }
-        
-
-    }
-    stage('SonarQube Analysis') {
+        }
+        stage('SonarQube Analysis') {
             steps {
-                
-                     withSonarQubeEnv('Sonar-scanner') { // Replace 'SonarQubeServer' with your actual SonarQube server name in Jenkins
-                        withCredentials([string(credentialsId: 'Sonar_Tocken', variable: 'SONAR_TOKEN')]) {
-                            sh '''mvn sonar:sonar \
-                                -Dsonar.projectKey=Devops-CICD \
-                                -Dsonar.login=${SONAR_TOKEN}'''
-                        
+                withSonarQubeEnv('Sonar-scanner') { 
+                    // Replace 'Sonar-scanner' with your actual SonarQube server name in Jenkins
+                    withCredentials([string(credentialsId: 'Sonar_Tocken', variable: 'SONAR_TOKEN')]) {
+                        sh '''mvn sonar:sonar \
+                            -Dsonar.projectKey=Devops-CICD \
+                            -Dsonar.login=${SONAR_TOKEN}'''
                     }
                 }
-               
             }
         }
+    }
 }
